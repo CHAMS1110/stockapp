@@ -1,0 +1,179 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} STM-101:Stock Info {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style type="text/css">
+  form-control {
+    width: unset;
+    margin: 0 !important ;
+    display: unset !important;
+  }
+  .form-group, .form-group div{
+    margin-right:0 !important ;
+    width: 33%;
+    display: unset !important;
+  }
+  .cover{
+    text-align: center;
+    justify-content: space-evenly;
+  }
+  form{
+    margin-bottom: 2rem;
+  }
+  input{
+    cursor: pointer;  
+  }
+  .btn{
+    margin-top: 0 !important;
+  }
+  .chart-container{
+    width: 100% !important;
+    text-align: center;
+  }
+
+  @media (max-width: 760px) {
+    .form-control{
+        width: 100%;
+    }
+  }
+  @media (max-width: 991px) {
+    .btn{
+      margin-top: 25px !important;
+    }
+  }  
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+     <div class="container text-center">
+      <h1><strong>{{ meta.name }} ({{ ticker }})</strong></h1>
+      <h5>
+        <strong>Description:</strong> {{meta.description}}
+      </h5>
+      <h6><strong>Today's price data for {{ meta.name }}</strong></h6>
+      <table class="table text-center">
+          <tr><td>Open     :</td><td>${{ price.open        }}</td></tr>
+          <tr><td>High     :</td><td>${{ price.high        }}</td></tr>
+          <tr><td>Low      :</td><td>${{ price.low         }}</td></tr>
+          <tr><td>Close    :</td><td>${{ price.close       }}</td></tr>
+          <tr><td>Volume   :</td><td> {{ price.volume      }}</td></tr>
+          <tr><td>Adj Open :</td><td>${{ price.adjOpen     }}</td></tr>
+          <tr><td>Adj High :</td><td>${{ price.adjHigh     }}</td></tr>
+          <tr><td>Adj Low  :</td><td>${{ price.adjLow      }}</td></tr>
+          <tr><td>Adj Close:</td><td>${{ price.adjClose    }}</td></tr>
+          <tr><td>Dividend :</td><td> {{ price.divCash     }}</td></tr>
+          <tr><td>Split    :</td><td> {{ price.splitFactor }}</td></tr>
+      </table>
+      <h6><strong>historical data for {{ meta.name }}</strong></h6>
+        {{ histo }}
+    </div>
+
+        <!-- error with selected dates  -->
+    {% if wrong_input %}
+      <div class="alert alert-warning" role="alert">
+        {{wrong_input}}
+      </div>
+    {% endif %}
+    <div class="row">
+      <form id="myForm" action="" method='POST'>
+        {% csrf_token %}
+        <div class="d-flex flex-nowrap cover">
+          {{search_form}}
+          <div class="">
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <h4 class="text-center">{{ meta.name }} Price change from {{date_from}} to {{date_to}}</h4>
+    <div class="chart-container">
+    <canvas id="btcChart"></canvas>
+      {% for i in Tresponse %}
+        <input type="hidden"   class="date-item" value="{{i.date}}">
+        <input type="hidden"  class="price-item" value="{{i.adjClose}}"> 
+        <input type="hidden"  class="name-item" value="{{ meta.name }}"> 
+      {% endfor %}
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+
+<script type="text/javascript">
+  var dates = document.getElementsByClassName('date-item')
+  var prices = document.getElementsByClassName('price-item')
+  var name = document.getElementsByClassName('name-item')
+
+  //convert html collection to array
+  const date=[]
+  const price=[]
+  for (let i = 0; i < dates.length; i++) {  //iterate over the html collection (hidden input) retrieved from the html
+    date[i] = dates[i].value //get the value(date) of each of the html collection (hidden input)
+    date[i]=date[i].replace("T00:00:00.000Z","")
+    //console.log(date[i])
+      }
+
+  for (let j = 0; j < prices.length; j++) {  //iterate over the html collection (hidden input) retrieved from the html
+  price[j] = prices[j].value
+
+  //get the value(prices) of each of the html collection (hidden input)
+      }
+
+  // Chart js code
+  var context = document.getElementById('btcChart').getContext('2d');
+    new Chart(context, {
+    type: 'line',
+    data: {
+        labels: date, //make the values of the date array the labels for the bar chart
+        datasets: [{
+            label: 'Price fluctuation',
+            data: price,  //make the values of the price array the data for the bar chart
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 3
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text:'{{ meta.name }} Price Change'
+          },
+        },
+        scales: {
+            x: {
+                display: true,
+                title: {
+                  display: true,
+                  text: 'Date'
+                }
+              },
+            y: {
+                display: true,
+                title: {
+                  display: true,
+                  text: 'Price in USD$'
+                }
+            }
+        }
+    }
+  });
+</script>
+{% endblock javascripts %}
