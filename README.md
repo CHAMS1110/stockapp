@@ -1,4 +1,4 @@
-# PyFolio
+# Stock tradding application Based on Reuse techology
 ### OVERVIEW:
 STM-101 is a free web application designed to provide trading simulations to users and it is built on Python Django Framework.STM-101 uses real-time stock market data to paint the most accurate picture of investment portfolios customized for perspective investors. It allows users to design their own portfolios and display quantitative factors with highly visualized graphs and charts.
 ### TARGET AUDIENCE:
