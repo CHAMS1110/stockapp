@@ -28,6 +28,7 @@ CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000','https://stm-101.herokuapp.com']
 # Application definition
 
 INSTALLED_APPS = [
+    'whitenoise.runserver_nostatic',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -48,6 +49,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+STATICFILES_STORAGE=  'whitenoise.storage.CompressedStaticFilesStorage'
+
 
 ROOT_URLCONF = 'core.urls'
 LOGIN_REDIRECT_URL = "home"  # Route defined in home/urls.py
@@ -120,8 +123,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(CORE_DIR, 'staticfiles')
-STATIC_URL = 'static/'
 
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = (
